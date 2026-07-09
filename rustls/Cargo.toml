@@ -104,6 +104,10 @@ name = "process_provider"
 path = "tests/process_provider.rs"
 
 [[test]]
+name = "ratls"
+path = "tests/runners/ratls.rs"
+
+[[test]]
 name = "server_cert_verifier"
 path = "tests/runners/server_cert_verifier.rs"
 

@@ -362,6 +362,9 @@ pub(crate) mod transport {
     //! but that doesn't matter (we are measuring performance differences, and overhead is automatically
     //! ignored as long as it remains constant).
 
+    // std-only module: benchmark harness IO.
+    #![allow(clippy::std_instead_of_core)]
+
     use std::io::{Cursor, Read, Write};
 
     use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};

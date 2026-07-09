@@ -276,6 +276,23 @@ impl KeyScheduleHandshake {
             .sign_finish(&self.server_handshake_traffic_secret, hs_hash)
     }
 
+    /// Derive the RA-TLS channel-binder from the client handshake traffic
+    /// secret: `HKDF-Expand-Label(client_handshake_traffic_secret,
+    /// "privasys-ratls-binder-v1", context, 32)`.
+    ///
+    /// Both peers compute the identical value from the shared key schedule, so
+    /// folding it into an attestation quote's `report_data` binds the quote to
+    /// this specific TLS session (channel binding). Available at the server's
+    /// Certificate-emit seam and recomputable by the client after ServerHello.
+    pub(crate) fn derive_ratls_binder(&self, context: &[u8]) -> [u8; 32] {
+        let expander = self
+            .ks
+            .suite
+            .hkdf_provider
+            .expander_for_okm(&self.client_handshake_traffic_secret);
+        hkdf_expand_label(expander.as_ref(), b"privasys-ratls-binder-v1", context)
+    }
+
     pub(crate) fn set_handshake_encrypter(&self, common: &mut CommonState) {
         debug_assert_eq!(common.side, Side::Client);
         self.ks

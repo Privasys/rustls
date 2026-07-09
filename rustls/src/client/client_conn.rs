@@ -115,6 +115,14 @@ pub trait ResolvesClientCert: fmt::Debug + Send + Sync {
     /// included one.  A TEE client can bind this into its attestation
     /// `report_data` for bidirectional challenge-response attestation.
     ///
+    /// `ratls_channel_binder` contains the 32-byte RA-TLS channel binder
+    /// derived from this session's handshake key schedule, if available
+    /// (TLS 1.3). A TEE client should fold it into its client cert's
+    /// attestation `report_data` alongside the nonce, so the quote commits
+    /// to this exact TLS session and a relayed client cert fails closed.
+    /// The verifying peer recomputes the identical value from its own key
+    /// schedule via [`crate::CommonState::ratls_channel_binder`].
+    ///
     /// Return `None` to continue the handshake without any client
     /// authentication.  The server may reject the handshake later
     /// if it requires authentication.
@@ -125,6 +133,7 @@ pub trait ResolvesClientCert: fmt::Debug + Send + Sync {
         root_hint_subjects: &[&[u8]],
         sigschemes: &[SignatureScheme],
         ratls_challenge: Option<&[u8]>,
+        ratls_channel_binder: Option<&[u8]>,
     ) -> Option<Arc<sign::CertifiedKey>>;
 
     /// Return true if the client only supports raw public keys.

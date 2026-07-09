@@ -150,6 +150,9 @@ mod client {
 }
 
 mod server {
+    // std-only module: socket-based interop test harness.
+    #![allow(clippy::std_instead_of_core)]
+
     use std::io::{self, ErrorKind, Read, Write};
     use std::net::TcpListener;
     use std::sync::Arc;

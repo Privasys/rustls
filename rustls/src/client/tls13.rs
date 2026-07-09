@@ -234,6 +234,13 @@ pub(super) fn handle_server_hello(
         cx.common,
     );
 
+    // RA-TLS channel binding: compute this connection's binder from the
+    // handshake key schedule (client handshake traffic secret, transcript
+    // through ServerHello) and stash it, so a verifier can recompute a
+    // channel-bound server quote's report_data. Matches the server's value.
+    cx.common.ratls_channel_binder =
+        Some(key_schedule.derive_ratls_binder(transcript.current_hash().as_ref()));
+
     emit_fake_ccs(&mut sent_tls13_fake_ccs, cx.common);
 
     Ok(Box::new(ExpectEncryptedExtensions {
@@ -931,6 +938,10 @@ impl State<ClientConnectionData> for ExpectCertificateRequest {
                 .ratls_challenge
                 .as_ref()
                 .map(|c| c.0.as_slice()),
+            cx.common
+                .ratls_channel_binder
+                .as_ref()
+                .map(|b| b.as_slice()),
             Some(certreq.context.0.clone()),
             compat_compressor,
         );

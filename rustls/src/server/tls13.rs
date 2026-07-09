@@ -365,6 +365,33 @@ mod client_hello {
                 cx.common.handshake_kind = Some(HandshakeKind::Resumed);
             }
 
+            // RA-TLS channel binding: the certificate resolved before the
+            // handshake could not commit its quote to this session. If the
+            // config supplies a binder hook, derive the 32-byte channel binder
+            // from the handshake key schedule (client handshake traffic secret,
+            // transcript through ServerHello) and re-mint the leaf so its
+            // quote's report_data folds it in; send that certificate instead.
+            // No hook => the resolved certificate is used unchanged.
+            let rebound_key;
+            let server_key = match &self.config.ratls_bind_certificate {
+                Some(hook) => {
+                    let binder =
+                        key_schedule.derive_ratls_binder(self.transcript.current_hash().as_ref());
+                    // Store the binder so a mutual-auth verifier (e.g. an Enclave
+                    // Vault) can recompute the client cert's channel-bound
+                    // report_data post-handshake via ratls_channel_binder().
+                    cx.common.ratls_channel_binder = Some(binder);
+                    match hook.bind_certificate(&binder) {
+                        Some(ck) => {
+                            rebound_key = ck;
+                            ActiveCertifiedKey::from_certified_key(&rebound_key)
+                        }
+                        None => server_key,
+                    }
+                }
+                None => server_key,
+            };
+
             let mut ocsp_response = server_key.get_ocsp();
             let mut flight = HandshakeFlightTls13::new(&mut self.transcript);
             let doing_early_data = emit_encrypted_extensions(

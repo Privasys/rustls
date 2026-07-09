@@ -134,6 +134,22 @@ pub trait ResolvesServerCert: Debug + Send + Sync {
     }
 }
 
+/// A per-connection hook that re-mints the server's leaf certificate with the
+/// RA-TLS channel binder folded into its attestation quote's `report_data`,
+/// binding the quote to this specific TLS session (channel binding).
+///
+/// The originally-resolved certificate is chosen before the key schedule
+/// exists, so its quote cannot commit to the session. When this hook is set on
+/// a per-connection [`ServerConfig`], a TLS 1.3 server calls it once, at the
+/// Certificate-emit point (after the handshake secret is derived), with the
+/// 32-byte channel binder, and sends the certificate it returns instead.
+pub trait RaTlsBindCertificate: Debug + Send + Sync {
+    /// Given the 32-byte channel binder for this connection, return the
+    /// certificate + key to send (whose quote must bind the binder), or `None`
+    /// to keep the originally-resolved certificate.
+    fn bind_certificate(&self, binder: &[u8; 32]) -> Option<Arc<sign::CertifiedKey>>;
+}
+
 /// A struct representing the received Client Hello
 #[derive(Debug)]
 pub struct ClientHello<'a> {
@@ -469,6 +485,13 @@ pub struct ServerConfig {
     ///
     /// This is typically set per-connection via a fresh `ServerConfig`.
     pub ratls_challenge: Option<Vec<u8>>,
+
+    /// RA-TLS channel-binding hook. When set, a TLS 1.3 server calls it at the
+    /// Certificate-emit seam with the 32-byte handshake-derived channel binder
+    /// (see [`RaTlsBindCertificate`]) and sends the returned certificate, whose
+    /// attestation quote's `report_data` commits to this session. Set
+    /// per-connection, like `ratls_challenge`. `None` (default) = no binding.
+    pub ratls_bind_certificate: Option<Arc<dyn RaTlsBindCertificate>>,
 }
 
 impl ServerConfig {

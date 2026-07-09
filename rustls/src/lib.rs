@@ -642,8 +642,8 @@ pub mod server {
     pub use handy::ServerSessionMemoryCache;
     pub use handy::{AlwaysResolvesServerRawPublicKeys, NoServerSessionStorage};
     pub use server_conn::{
-        Accepted, ClientHello, ProducesTickets, ResolvesServerCert, ServerConfig,
-        ServerConnectionData, StoresServerSessions, UnbufferedServerConnection,
+        Accepted, ClientHello, ProducesTickets, RaTlsBindCertificate, ResolvesServerCert,
+        ServerConfig, ServerConnectionData, StoresServerSessions, UnbufferedServerConnection,
     };
     #[cfg(feature = "std")]
     pub use server_conn::{AcceptedAlert, Acceptor, ReadEarlyData, ServerConnection};

@@ -93,6 +93,7 @@ impl ClientAuthDetails {
         canames: Option<&[DistinguishedName]>,
         sigschemes: &[SignatureScheme],
         ratls_challenge: Option<&[u8]>,
+        ratls_channel_binder: Option<&[u8]>,
         auth_context_tls13: Option<Vec<u8>>,
         compressor: Option<&'static dyn compress::CertCompressor>,
     ) -> Self {
@@ -102,7 +103,12 @@ impl ClientAuthDetails {
             .map(|p| p.as_ref())
             .collect::<Vec<&[u8]>>();
 
-        if let Some(certkey) = resolver.resolve(&acceptable_issuers, sigschemes, ratls_challenge) {
+        if let Some(certkey) = resolver.resolve(
+            &acceptable_issuers,
+            sigschemes,
+            ratls_challenge,
+            ratls_channel_binder,
+        ) {
             if let Some(signer) = certkey.key.choose_scheme(sigschemes) {
                 debug!("Attempting client auth");
                 return Self::Verify {

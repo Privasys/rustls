@@ -201,6 +201,7 @@ impl client::ResolvesClientCert for FailResolveClientCert {
         _root_hint_subjects: &[&[u8]],
         _sigschemes: &[SignatureScheme],
         _ratls_challenge: Option<&[u8]>,
+        _ratls_channel_binder: Option<&[u8]>,
     ) -> Option<Arc<sign::CertifiedKey>> {
         None
     }
@@ -229,6 +230,7 @@ impl client::ResolvesClientCert for AlwaysResolvesClientRawPublicKeys {
         _root_hint_subjects: &[&[u8]],
         _sigschemes: &[SignatureScheme],
         _ratls_challenge: Option<&[u8]>,
+        _ratls_channel_binder: Option<&[u8]>,
     ) -> Option<Arc<sign::CertifiedKey>> {
         Some(self.0.clone())
     }
@@ -381,6 +383,7 @@ mod tests {
             _root_hint_subjects: &[&[u8]],
             _sigschemes: &[SignatureScheme],
             _ratls_challenge: Option<&[u8]>,
+            _ratls_channel_binder: Option<&[u8]>,
         ) -> Option<Arc<sign::CertifiedKey>> {
             unreachable!()
         }

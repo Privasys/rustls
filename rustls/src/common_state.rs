@@ -61,6 +61,10 @@ pub struct CommonState {
     pub(crate) refresh_traffic_keys_pending: bool,
     pub(crate) fips: bool,
     pub(crate) tls13_tickets_received: u32,
+    /// RA-TLS channel binder derived from the handshake key schedule (set on
+    /// the client once the handshake secret is derived), for recomputing a
+    /// channel-bound quote's report_data. See [`Self::ratls_channel_binder`].
+    pub(crate) ratls_channel_binder: Option<[u8; 32]>,
 }
 
 impl CommonState {
@@ -94,7 +98,18 @@ impl CommonState {
             refresh_traffic_keys_pending: false,
             fips: false,
             tls13_tickets_received: 0,
+            ratls_channel_binder: None,
         }
+    }
+
+    /// The 32-byte RA-TLS channel binder for this connection, or `None` if it
+    /// has not been derived yet (or this is a server). It is computed from the
+    /// handshake key schedule (client handshake traffic secret, transcript
+    /// through ServerHello) once the client processes ServerHello, matching the
+    /// value a channel-binding server folds into its quote's report_data. A
+    /// verifier recomputes `SHA-512(SHA-256(SPKI) || nonce || binder)` with it.
+    pub fn ratls_channel_binder(&self) -> Option<[u8; 32]> {
+        self.ratls_channel_binder
     }
 
     /// Returns true if the caller should call [`Connection::write_tls`] as soon as possible.

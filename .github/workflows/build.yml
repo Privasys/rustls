@@ -408,17 +408,9 @@ jobs:
         run: cargo add --dev --features bindgen 'aws-lc-sys@>0.20' --package rustls --verbose
       - run: cross test --package rustls --target ${{ matrix.target }}
 
-  semver:
-    name: Check semver compatibility
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Check semver
-        uses: obi1kenobi/cargo-semver-checks-action@v2
+  # semver job removed: this fork deliberately extends the public API
+  # (ResolvesClientCert::resolve gains RA-TLS parameters), so a comparison
+  # against the crates.io baseline can never pass.
 
   format:
     name: Format

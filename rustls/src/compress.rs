@@ -189,6 +189,9 @@ pub use feat_zlib_rs::{ZLIB_COMPRESSOR, ZLIB_DECOMPRESSOR};
 
 #[cfg(feature = "brotli")]
 mod feat_brotli {
+    // std-only module: the brotli crate requires std.
+    #![allow(clippy::std_instead_of_core)]
+
     use std::io::{Cursor, Write};
 
     use super::*;
