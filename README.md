@@ -1,3 +1,11 @@
+> [!IMPORTANT]
+> **This is the Privasys fork of rustls, not the rustls project.** It adds the
+> RA-TLS challenge extension (0xFFBB) and RA-TLS channel binding for the
+> [Privasys](https://privasys.org) confidential-computing platform; the Privasys
+> changes live on the `privasys` branch and `privasys-v*` tags. For rustls
+> itself, go to https://github.com/rustls/rustls. **Security reports for this
+> fork go to Privasys, not to rustls maintainers**: see [SECURITY.md](SECURITY.md).
+
 <p align="center">
   <img width="460" height="300" src="https://raw.githubusercontent.com/rustls/rustls/main/admin/rustls-logo-web.png">
 </p>
