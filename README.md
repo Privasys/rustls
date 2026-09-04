@@ -1,3 +1,5 @@
+> **Retired (September 2026).** This fork carried the RA-TLS v1 intra-handshake attestation binder. RA-TLS v2 obtains evidence after the handshake through a TLS exporter that upstream already exposes, so the fork is no longer needed and this repository is archived. See the RA-TLS v2 specification: https://github.com/Privasys/ra-tls-clients/blob/main/docs/ratls-v2.md and the SDKs in https://github.com/Privasys/ra-tls-clients (v0.9.1 and later).
+
 > [!IMPORTANT]
 > **This is the Privasys fork of rustls, not the rustls project.** It adds the
 > RA-TLS challenge extension (0xFFBB) and RA-TLS channel binding for the
